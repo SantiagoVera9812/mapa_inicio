@@ -27,16 +27,21 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polygon
 import com.google.android.gms.maps.model.PolygonOptions
+import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
 
 class MapsFragment : Fragment() {
 
     private var polygon: Polygon? = null
     private var userMarker: Marker? = null
     private lateinit var gmap: GoogleMap
+    private var polylineOptions: PolylineOptions? = null
+    private var polyline: Polyline? = null
     private var circle: Circle? = null
     private var circle2: Circle? = null
     private var circle3: Circle? = null
     private val polygons: MutableList<Polygon> = mutableListOf()
+    private val polylineList: MutableList<LatLng> = mutableListOf()
 
     private val callback = OnMapReadyCallback { googleMap ->
         /**
@@ -50,8 +55,11 @@ class MapsFragment : Fragment() {
          */
 
         gmap = googleMap
+        polylineOptions?.color(Color.CYAN)
+        polylineOptions?.width(5f)
 
         val sydney = LatLng(-34.0, 151.0)
+        polylineList.add(sydney)
 
         val markerOptions = MarkerOptions()
             .position(sydney)
@@ -65,6 +73,19 @@ class MapsFragment : Fragment() {
 
 
         gmap.setOnMapClickListener { latLng ->
+
+            polylineList.add(latLng)
+
+            val (start, end) = getLastAndSecondToLastLatLng()
+
+            val polylineOptionsInt = PolylineOptions()
+                .add(start)
+                .add(end)
+                .color(Color.BLUE) // Set the color of the polyline
+                .width(5f)
+
+            gmap.addPolyline(polylineOptionsInt)
+
 
             if(polygons.isNotEmpty()){
                 polygon?.remove()
@@ -112,6 +133,9 @@ class MapsFragment : Fragment() {
             circle2 = gmap.addCircle(circleOptionsMiddle)
             circle = gmap.addCircle(circleOptionsInner)
 
+            polylineOptions?.add(latLng)
+
+
         }
 
     }
@@ -143,5 +167,16 @@ class MapsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
+    }
+
+    fun getLastAndSecondToLastLatLng(): Pair<LatLng?, LatLng?> {
+        return if (polylineList.size >= 2) {
+            val lastLatLng = polylineList[polylineList.size - 1]
+            val secondToLastLatLng = polylineList[polylineList.size - 2]
+            Pair(secondToLastLatLng, lastLatLng)
+        } else {
+            // Return null if there are not enough elements
+            Pair(null, null)
+        }
     }
 }
