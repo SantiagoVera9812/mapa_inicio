@@ -1,5 +1,6 @@
 package com.example.practica.fragments
 
+import android.graphics.Color
 import androidx.fragment.app.Fragment
 
 import android.os.Bundle
@@ -14,6 +15,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolygonOptions
 
 class MapsFragment : Fragment() {
 
@@ -30,6 +32,19 @@ class MapsFragment : Fragment() {
         val sydney = LatLng(-34.0, 151.0)
         googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+        val polygonOptions = PolygonOptions()
+            .add(
+                LatLng(-34.1, 151.0),
+                LatLng(-34.0, 151.1),
+                LatLng(-33.9, 151.0),
+                LatLng(-34.0, 150.9)
+            )
+            .strokeColor(Color.RED) // Color del borde
+            .fillColor(Color.BLUE)  // Color del relleno
+            .strokeWidth(5f)
+
+        googleMap.addPolygon(polygonOptions)
     }
 
     override fun onCreateView(
